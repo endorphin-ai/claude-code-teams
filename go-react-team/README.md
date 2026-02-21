@@ -1,7 +1,4 @@
-The Architect
 
-META factory. When a user runs /architect build me squad for X, the Architect generates everything: agents, skills, el-capitan, workflow
-YAML, commands, AND a CLAUDE.md explaining how to use it all.
 
 The Full Toolkit in Claude Code
 
@@ -20,19 +17,11 @@ External tool integrations — give Claude access to APIs, databases, services. 
 CLAUDE.md
 The project-level system prompt. Sets the personality and default behavior for everything.
 
-The Architect can now be used via claude --system-prompt-file .claude/AI-Agent-Squad-Architect.md and asked to "build me a squad for X" — it knows the component types, where to put files, how to use the Task tool, and to exclude its own tooling from analysis.
-
-```
-claude --system-prompt-file .claude/AI-Agent-Squad-Architect.md
-```
-
-```
-/architect build me squad for buuld golang + react app from scratch
-```
-
+Run 
 ```
 claude code
 ```
+Run for agent simulation
 
 ```
 /el-capitan --dry-run "Build Expence tracker"
