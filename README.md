@@ -39,6 +39,8 @@ claude code
 ```
 
 Every team comes with agents, skills, and commands that you can adjust for your specific needs.
+Also consider improving your agents’ skills with references tailored to your project’s specific needs. (Yes, you need to get your hands dirty.) 
+Supercharge the skills and add clear agent steps.
 
 ---
 
