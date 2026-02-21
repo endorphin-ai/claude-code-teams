@@ -26,3 +26,8 @@ Run for agent simulation
 ```
 /el-capitan --dry-run "Build Expence tracker"
 ```
+Run for real work
+
+```
+/el-capitan  "Build X"
+```
