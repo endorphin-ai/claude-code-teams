@@ -1,4 +1,4 @@
-
+![go-react-team](go-react-team.png)
 
 The Full Toolkit in Claude Code
 
@@ -17,15 +17,18 @@ External tool integrations — give Claude access to APIs, databases, services. 
 CLAUDE.md
 The project-level system prompt. Sets the personality and default behavior for everything.
 
-Run 
+Run
+
 ```
 claude code
 ```
+
 Run for agent simulation
 
 ```
 /el-capitan --dry-run "Build Expence tracker"
 ```
+
 Run for real work
 
 ```
