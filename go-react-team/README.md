@@ -31,3 +31,17 @@ Run for real work
 ```
 /el-capitan  "Build X"
 ```
+
+```
+
+  /el-capitan {request}
+     ├─► Phase 0: pm-fullstack → PRD
+     ├─► Phase 1: architect-fullstack → Design Doc
+     ├─► Phase 2: go-dev → Go Backend
+     ├─► Phase 3: react-dev → React Frontend
+     ├─► Phase 4: architect-fullstack --review → Code Review
+     ├─► Phase 5a: tester-go → Go Tests (parallel)
+     ├─► Phase 5b: tester-react → React Tests (parallel)
+     └─► Phase 6: pm-fullstack --review → Acceptance Review
+
+```
