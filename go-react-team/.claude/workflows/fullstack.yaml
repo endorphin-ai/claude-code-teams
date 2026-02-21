@@ -1,0 +1,185 @@
+# .claude/workflows/fullstack.yaml
+# Declarative pipeline definition for the fullstack (Go + React) squad
+
+workflow_definition:
+  name: fullstack
+  description: "End-to-end fullstack development pipeline: requirements → design → backend → frontend → code review → testing → acceptance"
+  version: "1.0"
+
+  phases:
+    # Phase 0: PM writes PRD — MANDATORY first phase
+    - name: requirements
+      agent: pm-fullstack
+      description: "Write PRD based on user request — features, acceptance criteria, priorities"
+      input:
+        - user_request
+      output:
+        - prd_document
+        - feature_list
+        - acceptance_criteria
+      validation: "PRD exists AND has >= 1 feature with acceptance criteria"
+      depends_on: []
+
+    # Phase 1: Architect designs the system
+    - name: design
+      agent: architect-fullstack
+      description: "Design API contracts, DB schema, component tree, Go project structure"
+      input:
+        - user_request
+        - prd_document
+      output:
+        - design_document
+        - api_contracts
+        - db_schema
+        - component_tree
+      validation: "Design doc has API endpoints AND DB schema AND component tree"
+      depends_on:
+        - requirements
+
+    # Phase 2: Go backend implementation
+    - name: backend
+      agent: go-dev
+      description: "Implement Go REST API: handlers, services, repositories, models, router"
+      input:
+        - user_request
+        - prd_document
+        - api_contracts
+        - db_schema
+      output:
+        - go_files_created
+        - endpoints_implemented
+        - build_status
+      validation: "Go code compiles (go build passes) AND all API endpoints have handlers"
+      depends_on:
+        - design
+
+    # Phase 3: React frontend implementation
+    - name: frontend
+      agent: react-dev
+      description: "Implement React UI: TypeScript types, API client, components, pages, routing"
+      input:
+        - user_request
+        - prd_document
+        - api_contracts
+        - component_tree
+      output:
+        - react_files_created
+        - components_implemented
+        - build_status
+      validation: "React builds (npm run build passes) AND component tree is implemented"
+      depends_on:
+        - design
+
+    # Phase 4: Architect reviews code against design
+    - name: review
+      agent: architect-fullstack
+      description: "Review all code against design document — check conformance, patterns, quality"
+      mode: "--review"
+      input:
+        - user_request
+        - prd_document
+        - design_document
+        - api_contracts
+        - db_schema
+        - component_tree
+        - go_files_created
+        - react_files_created
+      output:
+        - review_report
+        - issues_found
+        - conformance_status
+      validation: "Review report produced AND no critical issues (or critical issues are documented)"
+      depends_on:
+        - backend
+        - frontend
+
+    # Phase 5a: Go backend testing (parallel with 5b)
+    - name: testing-go
+      agent: tester-go
+      description: "Write and run Go unit/integration tests for handlers, services, repositories"
+      input:
+        - user_request
+        - prd_document
+        - api_contracts
+        - go_files_created
+        - review_report
+      output:
+        - go_test_files_created
+        - go_test_results
+        - go_coverage
+      validation: "All Go tests pass AND coverage >= 70%"
+      depends_on:
+        - review
+
+    # Phase 5b: React frontend testing (parallel with 5a)
+    - name: testing-react
+      agent: tester-react
+      description: "Write and run React component, hook, and integration tests with MSW"
+      input:
+        - user_request
+        - prd_document
+        - component_tree
+        - react_files_created
+        - review_report
+      output:
+        - react_test_files_created
+        - react_test_results
+        - react_coverage
+      validation: "All React tests pass AND coverage >= 70%"
+      depends_on:
+        - review
+
+    # Phase 6: PM acceptance review against PRD
+    - name: acceptance
+      agent: pm-fullstack
+      description: "Validate all deliverables against PRD acceptance criteria — pass/fail per criterion"
+      mode: "--review"
+      input:
+        - user_request
+        - prd_document
+        - acceptance_criteria
+        - go_files_created
+        - react_files_created
+        - review_report
+        - go_test_results
+        - react_test_results
+      output:
+        - acceptance_report
+        - criteria_results
+        - overall_verdict
+      validation: "Acceptance report produced AND all P0 criteria pass"
+      depends_on:
+        - testing-go
+        - testing-react
+
+  error_handling:
+    retry_count: 2
+    on_failure: "escalate_to_user"
+    on_gate_failure: "report_and_ask"
+
+  context_schema:
+    user_request: "string - The original user request"
+    prd_document: "string - Full PRD with features and acceptance criteria"
+    feature_list: "list[string] - List of feature names"
+    acceptance_criteria: "list[object] - Acceptance criteria per feature"
+    design_document: "string - Full system design document"
+    api_contracts: "string - API endpoints with request/response schemas"
+    db_schema: "string - PostgreSQL CREATE TABLE statements"
+    component_tree: "string - React component hierarchy with props"
+    go_files_created: "list[string] - Paths to created Go source files"
+    react_files_created: "list[string] - Paths to created React source files"
+    endpoints_implemented: "list[string] - List of implemented API endpoints"
+    components_implemented: "list[string] - List of implemented React components"
+    build_status: "string - Build pass/fail with output"
+    review_report: "string - Code review findings"
+    issues_found: "list[object] - Issues with severity, file, description"
+    conformance_status: "string - Overall conformance verdict"
+    go_test_files_created: "list[string] - Paths to Go test files"
+    go_test_results: "string - Go test pass/fail summary"
+    go_coverage: "string - Go coverage percentage per package"
+    react_test_files_created: "list[string] - Paths to React test files"
+    react_test_results: "string - React test pass/fail summary"
+    react_coverage: "string - React coverage percentage per file"
+    acceptance_report: "string - Full acceptance review document"
+    criteria_results: "list[object] - Pass/fail per acceptance criterion"
+    overall_verdict: "string - Final verdict: PASS / CONDITIONAL PASS / FAIL"
