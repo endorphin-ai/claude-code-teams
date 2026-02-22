@@ -1,0 +1,224 @@
+# .claude/workflows/mean-app.yaml
+# Declarative pipeline definition for the mean-app squad
+# Read by /el-capitan command to orchestrate MEAN stack development
+
+workflow_definition:
+  name: mean-app
+  description: "Build MEAN stack web applications (MongoDB + Express + React + Node.js) from user request to tested, reviewed code"
+  version: "1.0"
+
+  phases:
+    # Phase 0: PM writes PRD — all other phases work from this
+    - name: requirements
+      agent: pm-mean
+      description: "Write PRD based on user request — features, acceptance criteria, priorities"
+      input:
+        - user_request
+      output:
+        - prd_document
+        - feature_list
+        - acceptance_criteria
+      validation: "PRD exists AND has >= 1 feature with acceptance criteria"
+      depends_on: []
+
+    # Phase 1: DB Architect designs MongoDB schema
+    - name: db-architecture
+      agent: db-architect-mean
+      description: "Design MongoDB collections, Mongoose schemas, indexes, and relationships"
+      input:
+        - user_request
+        - prd_document
+      output:
+        - db_design
+        - collection_schemas
+        - index_definitions
+      validation: "DB design has >= 1 collection with schema + indexes defined"
+      depends_on:
+        - requirements
+
+    # Phase 2: API Architect designs Express endpoints
+    - name: api-architecture
+      agent: api-architect-mean
+      description: "Design REST endpoints, middleware chains, auth flow, request/response contracts"
+      input:
+        - user_request
+        - prd_document
+        - db_design
+      output:
+        - api_design
+        - endpoint_contracts
+        - auth_flow
+      validation: "API design has >= 1 endpoint with method + path + request/response schema"
+      depends_on:
+        - db-architecture
+
+    # Phase 3: React Architect designs frontend
+    - name: react-architecture
+      agent: react-architect-mean
+      description: "Design component tree, page layouts, routing, state management"
+      input:
+        - user_request
+        - prd_document
+        - api_design
+      output:
+        - react_design
+        - component_tree
+        - routing_plan
+        - state_management_plan
+      validation: "React design has component hierarchy + page list + routing plan"
+      depends_on:
+        - api-architecture
+
+    # Phase 4: Backend Dev implements Express + MongoDB
+    - name: backend-implementation
+      agent: backend-mean
+      description: "Implement Express server, Mongoose models, controllers, routes, middleware, auth"
+      input:
+        - user_request
+        - prd_document
+        - db_design
+        - api_design
+      output:
+        - backend_summary
+        - implemented_endpoints
+        - models_created
+        - files_created
+      validation: "server.js exists AND >= 1 model AND >= 1 route AND package.json with dependencies"
+      depends_on:
+        - api-architecture
+
+    # Phase 5: Frontend Dev implements React app
+    - name: frontend-implementation
+      agent: frontend-mean
+      description: "Implement React app — components, pages, hooks, API client, routing"
+      input:
+        - user_request
+        - prd_document
+        - api_design
+        - react_design
+        - backend_summary
+      output:
+        - frontend_summary
+        - pages_created
+        - components_created
+        - files_created
+      validation: "App.jsx exists AND >= 1 page component AND API client configured"
+      depends_on:
+        - react-architecture
+        - backend-implementation
+
+    # Phase 6: Code Review (with loop-back capability)
+    - name: code-review
+      agent: reviewer-mean
+      description: "Review backend + frontend code for quality, security, architecture compliance"
+      input:
+        - user_request
+        - prd_document
+        - db_design
+        - api_design
+        - react_design
+        - backend_summary
+        - frontend_summary
+      output:
+        - review_verdict
+        - backend_issues
+        - frontend_issues
+        - review_summary
+      validation: "Verdict is PASS (zero critical issues)"
+      depends_on:
+        - frontend-implementation
+      loop:
+        enabled: true
+        max_iterations: 2
+        on_fail:
+          - agent: backend-mean
+            condition: "backend_issues has critical items"
+            input_extra: review_feedback
+          - agent: frontend-mean
+            condition: "frontend_issues has critical items"
+            input_extra: review_feedback
+
+    # Phase 7: Backend Testing (can run parallel with Phase 8)
+    - name: backend-testing
+      agent: qa-backend-mean
+      description: "Write and run tests for Express API, MongoDB operations, auth flow"
+      input:
+        - user_request
+        - prd_document
+        - api_design
+        - backend_summary
+      output:
+        - test_results_backend
+        - test_files_created
+        - coverage_report
+      validation: ">= 1 test file AND tests execute AND pass rate documented"
+      depends_on:
+        - code-review
+
+    # Phase 8: Frontend Testing (can run parallel with Phase 7)
+    - name: frontend-testing
+      agent: qa-frontend-mean
+      description: "Write and run tests for React components, pages, hooks, auth flow"
+      input:
+        - user_request
+        - prd_document
+        - react_design
+        - frontend_summary
+      output:
+        - test_results_frontend
+        - test_files_created
+        - coverage_report
+      validation: ">= 1 test file AND tests execute AND pass rate documented"
+      depends_on:
+        - code-review
+
+    # Phase 9: PM Acceptance Review — validates everything against PRD
+    - name: acceptance-review
+      agent: pm-mean
+      description: "Validate all deliverables against PRD acceptance criteria — final quality gate"
+      input:
+        - user_request
+        - prd_document
+        - backend_summary
+        - frontend_summary
+        - review_verdict
+        - test_results_backend
+        - test_results_frontend
+      output:
+        - acceptance_verdict
+        - feature_checklist
+        - final_recommendations
+      validation: "Acceptance verdict exists with per-feature pass/fail"
+      depends_on:
+        - backend-testing
+        - frontend-testing
+
+  error_handling:
+    retry_count: 2
+    on_failure: "escalate_to_user"
+    on_gate_failure: "report_and_ask"
+
+  context_schema:
+    user_request: "string — original user request"
+    prd_document: "string — full PRD with features and acceptance criteria"
+    feature_list: "list[string] — numbered feature names"
+    acceptance_criteria: "list[object] — per-feature acceptance criteria"
+    db_design: "string — MongoDB schema design with collections, indexes, relationships"
+    collection_schemas: "list[object] — Mongoose schema definitions"
+    index_definitions: "list[object] — index specifications"
+    api_design: "string — REST API design with endpoint contracts"
+    endpoint_contracts: "list[object] — per-endpoint request/response schemas"
+    auth_flow: "string — JWT authentication flow description"
+    react_design: "string — React architecture with component tree and routing"
+    component_tree: "string — hierarchical component structure"
+    routing_plan: "string — React Router route definitions"
+    state_management_plan: "string — state management strategy"
+    backend_summary: "string — what was implemented, files created, endpoints active"
+    frontend_summary: "string — what was implemented, pages created, components built"
+    review_verdict: "string — PASS or FAIL with issues"
+    backend_issues: "list[object] — issues found in backend code"
+    frontend_issues: "list[object] — issues found in frontend code"
+    review_feedback: "string — specific fix instructions for developers on re-review"
+    test_results_backend: "string — test pass/fail counts, coverage, failed test details"
+    test_results_frontend: "string — test pass/fail counts, coverage, failed test details"
+    acceptance_verdict: "string — final PASS/FAIL with per-feature checklist"
