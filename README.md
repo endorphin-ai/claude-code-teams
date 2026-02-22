@@ -9,6 +9,9 @@
 | [Go + React Team](./go-react-team) | Fullstack squad with Go backend and React frontend        |
 | [MEAN Team](./mean-team)           | Fullstack squad with MongoDB, Express, React, and Node.js |
 
+
+Video: https://youtu.be/QSuEAs-6ihc?si=jp6ZPUJKBmeoRQrn
+
 ## How It Works
 
 Every team is orchestrated by **El Capitan** — the main orchestrator that manages the entire squad through a standard pipeline:
