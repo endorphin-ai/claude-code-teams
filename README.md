@@ -4,9 +4,10 @@
 
 ## Available Teams
 
-| Team | Description |
-|------|-------------|
-| [Go + React Team](./go-react-team) | Fullstack squad with Go backend and React frontend |
+| Team                               | Description                                               |
+| ---------------------------------- | --------------------------------------------------------- |
+| [Go + React Team](./go-react-team) | Fullstack squad with Go backend and React frontend        |
+| [MEAN Team](./mean-team)           | Fullstack squad with MongoDB, Express, React, and Node.js |
 
 ## How It Works
 
@@ -39,7 +40,7 @@ claude code
 ```
 
 Every team comes with agents, skills, and commands that you can adjust for your specific needs.
-Also consider improving your agents’ skills with references tailored to your project’s specific needs. (Yes, you need to get your hands dirty.) 
+Also consider improving your agents’ skills with references tailored to your project’s specific needs. (Yes, you need to get your hands dirty.)
 Supercharge the skills and add clear agent steps.
 
 ---
