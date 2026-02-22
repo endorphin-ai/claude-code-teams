@@ -1,4 +1,4 @@
-![go-react-team](go-react-team.png)
+![mean-team](mean.png)
 
 The Full Toolkit in Claude Code
 
@@ -29,7 +29,8 @@ Run for agent simulation
 /el-capitan --dry-run "Build Expence tracker"
 ```
 
-One-time setup: 
+One-time setup:
+
 ```
 /scaffold-mean my-app-name — creates project structure, installs deps
 ```
@@ -56,6 +57,3 @@ Full pipeline:
        └─► Phase 9: pm-mean --review → Acceptance verdict
 
 ```
-
-
-
