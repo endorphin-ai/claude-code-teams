@@ -3,6 +3,7 @@
 **One Pizza Team** is a set of AI agents capable of working together — from PRD to PR — as a fully autonomous development squad.
 
 ## Available Teams
+> Build with SQUAD ARHITECT ; https://github.com/endorphin-ai/squad-architect/
 
 | Team                               | Description                                               |
 | ---------------------------------- | --------------------------------------------------------- |
